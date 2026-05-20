@@ -1,7 +1,9 @@
+import { Board } from "../../board/components/Board";
+
  export const GamePage = () => {
   return (
     <div>
-      <h1>Game Page</h1>
+      <Board/>
     </div>
   );
 };

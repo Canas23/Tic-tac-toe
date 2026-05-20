@@ -1,13 +1,19 @@
 import { Square } from "./Square";
 import { checkSquareAvailability } from "../helpers/boardHelpers";
 
+interface BoardProps {
+  board: (string | null)[];
+  currentPlayer: string;
+  onPlay: (position: number, player: string) => void;
+}
+
 export const Board = ({
   board,
   currentPlayer,
-  onPlay
-}) => {
+  onPlay,
+}: BoardProps) => {
 
-  const handleSquareClick = (position) => {
+  const handleSquareClick = (position: number) => {
 
     const isAvailable = checkSquareAvailability(
       board,
