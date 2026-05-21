@@ -1,11 +1,15 @@
-import { useGame } from "../../../hooks/useGame";
+import { useGame } from "../hooks/useGame";
 
 const TurnIndicator = () => {
-  const { state } = useGame();
+  const { currentPlayer, getPlayerName, isGameOver } = useGame();
+
+  if (isGameOver) {
+    return null;
+  }
 
   return (
     <h2>
-      Current Player: {state.currentPlayer}
+      Turno: {getPlayerName(currentPlayer)} ({currentPlayer})
     </h2>
   );
 };

@@ -1,11 +1,11 @@
-import { useGame } from "../../../hooks/useGame";
+import { useGame } from "../hooks/useGame";
 
 const RestartButton = () => {
   const { restartGame } = useGame();
 
   return (
-    <button onClick={restartGame}>
-      Restart Game
+    <button className="button button--secondary" onClick={restartGame}>
+      Reiniciar partida
     </button>
   );
 };

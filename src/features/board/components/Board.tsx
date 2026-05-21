@@ -1,17 +1,17 @@
+import { useGame } from "../../game/hooks/useGame";
 import Square from "./Square";
-import "./Board.css";
-
-import { useGame } from "../../../hooks/useGame";
+import "./board.css";
 
 const Board = () => {
-  const { state, playMove } = useGame();
+  const { board, isGameOver, playMove } = useGame();
 
   return (
-    <div className="board">
-      {state.board.map((square, index) => (
+    <div className="board" aria-label="Tablero de Tic Tac Toe">
+      {board.map((square, index) => (
         <Square
           key={index}
           value={square}
+          disabled={isGameOver || square !== null}
           onClick={() => playMove(index)}
         />
       ))}
