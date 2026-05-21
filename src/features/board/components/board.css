@@ -14,7 +14,7 @@
   background-color: var(--surface);
   color: var(--text-h);
   font-size: clamp(2rem, 12vw, 4rem);
-  font-weight: bold;
+  font-weight: 800;
   cursor: pointer;
   border-radius: 8px;
   transition: border-color 0.2s, transform 0.2s;
@@ -29,10 +29,10 @@
   cursor: default;
 }
 
-.square--x {
+.x-player {
   color: var(--accent);
 }
 
-.square--o {
+.o-player {
   color: var(--accent-alt);
 }

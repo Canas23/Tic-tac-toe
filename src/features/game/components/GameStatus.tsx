@@ -1,17 +1,21 @@
-import { useGame } from "../../../hooks/useGame";
+import { useGame } from "../hooks/useGame";
 
 const GameStatus = () => {
-  const { state } = useGame();
+  const { winner, isDraw, getPlayerName } = useGame();
 
-  if (state.winner) {
-    return <h2>Winner: {state.winner}</h2>;
+  if (winner) {
+    return (
+      <p className="status">
+        Ganador: {getPlayerName(winner)} ({winner})
+      </p>
+    );
   }
 
-  if (state.isDraw) {
-    return <h2>Draw Game</h2>;
+  if (isDraw) {
+    return <p className="status">La partida termino en empate.</p>;
   }
 
-  return null;
+  return <p className="status">Selecciona una casilla libre para jugar.</p>;
 };
 
 export default GameStatus;

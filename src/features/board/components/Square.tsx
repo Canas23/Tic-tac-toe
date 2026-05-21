@@ -1,19 +1,20 @@
-
-import "./board.css";
+import { type BoardValue } from "../helpers/boardHelpers";
 
 interface Props {
-  value: string | null;
+  value: BoardValue;
+  disabled: boolean;
   onClick: () => void;
 }
 
-
-const Square = ({ value, onClick }: Props) => {
+const Square = ({ value, disabled, onClick }: Props) => {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`square ${value === "X" ? "x-player" : ""} ${
         value === "O" ? "o-player" : ""
       }`}
+      aria-label={value ? `Casilla marcada con ${value}` : "Casilla vacia"}
     >
       {value}
     </button>
