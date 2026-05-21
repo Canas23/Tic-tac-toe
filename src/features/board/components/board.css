@@ -21,3 +21,11 @@
 .square:hover {
   background-color: #dcdcdc;
 }
+
+.x-player {
+  color: #2563eb;
+}
+
+.o-player {
+  color: #dc2626;
+}

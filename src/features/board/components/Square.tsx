@@ -1,20 +1,23 @@
-import "./Board.css";
 
-interface SquareProps {
+import "./board.css";
+
+interface Props {
   value: string | null;
-  onSelect: () => void;
+  onClick: () => void;
 }
 
-export const Square = ({
-  value,
-  onSelect,
-}: SquareProps) => {
+
+const Square = ({ value, onClick }: Props) => {
   return (
     <button
-      className="square"
-      onClick={onSelect}
+      onClick={onClick}
+      className={`square ${value === "X" ? "x-player" : ""} ${
+        value === "O" ? "o-player" : ""
+      }`}
     >
       {value}
     </button>
   );
 };
+
+export default Square;

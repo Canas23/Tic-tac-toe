@@ -1,9 +1,21 @@
-import { Board } from "../../board/components/Board";
+import Board from "../../board/components/Board";
 
- export const GamePage = () => {
+import TurnIndicator from "../components/TurnIndicator";
+import RestartButton from "../components/RestartButton";
+import GameStatus from "../components/GameStatus";
+
+export const GamePage = () => {
   return (
     <div>
-      <Board/>
+      <h1>Tic Tac Toe</h1>
+
+      <TurnIndicator />
+
+      <Board />
+
+      <GameStatus />
+
+      <RestartButton />
     </div>
   );
 };
