@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   checkDraw,
   createEmptyBoard,
@@ -11,6 +11,9 @@ import { type PlayerNames } from "../../players/data/playerTypes";
 import { type MatchRecord } from "../services/matchHistoryService";
 import { createMatchRecord } from "../services/matchHistoryService";
 import { GameContext } from "./GameContext";
+import { useAuth } from "../../../auth/hooks/useAuth";
+import { db } from "../../../utils/firebase";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
 const getNextPlayer = (player: Player): Player => {
   return player === "X" ? "O" : "X";
@@ -22,10 +25,54 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [players, setPlayers] = useState<PlayerNames>(defaultPlayers);
   const [history, setHistory] = useState<MatchRecord[]>([]);
   const [hasRecordedResult, setHasRecordedResult] = useState(false);
+  const { user } = useAuth();
 
   const winner = getWinner(board);
   const isDraw = checkDraw(board);
   const isGameOver = winner !== null || isDraw;
+
+  // Cargar historial del usuario desde Firestore al iniciar sesión
+  useEffect(() => {
+    if (!user) {
+      setHistory([]);
+      return;
+    }
+
+    const loadHistory = async () => {
+      try {
+        const q = query(
+          collection(db, "matches"),
+          where("userId", "==", user.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        const loadedHistory: (MatchRecord & { createdAt?: string })[] = [];
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          loadedHistory.push({
+            id: data.id || doc.id,
+            players: data.players,
+            result: data.result,
+            finishedAt: data.finishedAt,
+            createdAt: data.createdAt,
+          });
+        });
+
+        // Ordenar en memoria por fecha de creación (descendente)
+        loadedHistory.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        setHistory(loadedHistory);
+      } catch (e) {
+        console.error("Error al cargar historial desde Firestore:", e);
+      }
+    };
+
+    loadHistory();
+  }, [user]);
 
   const getPlayerName = useCallback(
     (player: Player) => {
@@ -65,16 +112,30 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     [board, currentPlayer, isGameOver]
   );
 
-  const recordFinishedGame = useCallback(() => {
-    if (!isGameOver || hasRecordedResult) {
+  const recordFinishedGame = useCallback(async () => {
+    if (!isGameOver || hasRecordedResult || !user) {
       return;
     }
 
     const record = createMatchRecord(players, winner);
+    const documentToSave = {
+      ...record,
+      userId: user.uid,
+      createdAt: new Date().toISOString(),
+    };
 
-    setHistory((currentHistory) => [record, ...currentHistory]);
-    setHasRecordedResult(true);
-  }, [hasRecordedResult, isGameOver, players, winner]);
+    // Registrar en Firestore
+    try {
+      await addDoc(collection(db, "matches"), documentToSave);
+      setHistory((currentHistory) => [record, ...currentHistory]);
+      setHasRecordedResult(true);
+    } catch (e) {
+      console.error("Error al guardar partida en Firestore:", e);
+      // Fallback: guardar localmente aunque falle Firestore
+      setHistory((currentHistory) => [record, ...currentHistory]);
+      setHasRecordedResult(true);
+    }
+  }, [hasRecordedResult, isGameOver, players, winner, user]);
 
   const value = useMemo(
     () => ({
