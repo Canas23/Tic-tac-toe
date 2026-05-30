@@ -3,8 +3,10 @@ import { AuthContext, type AuthUser } from "./AuthContext";
 import { auth } from "../../utils/firebase";
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from "firebase/auth";
@@ -106,15 +108,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      if (error instanceof Error) {
+        const firebaseError = error as { code?: string };
+        if (firebaseError.code === "auth/popup-closed-by-user") {
+          throw new Error("El inicio de sesión fue cancelado.");
+        } else if (firebaseError.code === "auth/operation-not-allowed") {
+          throw new Error("El inicio de sesión con Google no está habilitado en Firebase.");
+        }
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
       isLoading,
       login,
       register,
+      loginWithGoogle,
       logout,
     }),
-    [isLoading, login, logout, register, user]
+    [isLoading, login, loginWithGoogle, logout, register, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
